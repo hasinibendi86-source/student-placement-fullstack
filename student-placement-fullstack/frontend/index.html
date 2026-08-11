@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Placement Prediction System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== Header / letterhead ===== -->
+  <header class="letterhead">
+    <div class="letterhead__inner">
+      <div class="letterhead__mark">SP</div>
+      <div class="letterhead__text">
+        <p class="letterhead__eyebrow">Career Services &middot; Predictive Assessment</p>
+        <h1 class="letterhead__title">Student Placement Prediction System</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+
+    <!-- ===== Intro ===== -->
+    <section class="intro">
+      <p>
+        Enter a student's academic record, skill scores, and internship history below.
+        A Logistic Regression model, trained on historical placement data, will estimate
+        the likelihood of placement and return a probability score.
+      </p>
+    </section>
+
+    <div class="workspace">
+
+      <!-- ===== Form: the "application record" ===== -->
+      <section class="record-card" aria-labelledby="form-heading">
+        <div class="record-card__head">
+          <h2 id="form-heading">Student Record</h2>
+          <span class="record-card__tag">FORM 07&ndash;A</span>
+        </div>
+
+        <form id="predict-form" novalidate>
+
+          <div class="field-group">
+            <span class="field-group__label">01 &nbsp;Academic Record</span>
+            <div class="field-row">
+              <div class="field">
+                <label for="cgpa">CGPA</label>
+                <input type="number" id="cgpa" name="cgpa" step="0.01" min="0" max="10" placeholder="e.g. 8.2" required>
+                <span class="field__hint">0 &ndash; 10</span>
+                <span class="field__error" id="err-cgpa"></span>
+              </div>
+              <div class="field">
+                <label for="tenth">10th Percentage</label>
+                <input type="number" id="tenth" name="tenth" step="0.01" min="0" max="100" placeholder="e.g. 85" required>
+                <span class="field__hint">0 &ndash; 100</span>
+                <span class="field__error" id="err-tenth"></span>
+              </div>
+              <div class="field">
+                <label for="twelfth">12th Percentage</label>
+                <input type="number" id="twelfth" name="twelfth" step="0.01" min="0" max="100" placeholder="e.g. 80" required>
+                <span class="field__hint">0 &ndash; 100</span>
+                <span class="field__error" id="err-twelfth"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <span class="field-group__label">02 &nbsp;Skill Scores</span>
+            <div class="field-row">
+              <div class="field">
+                <label for="technical">Technical Skill Score</label>
+                <input type="number" id="technical" name="technical" min="0" max="100" placeholder="e.g. 75" required>
+                <span class="field__hint">0 &ndash; 100</span>
+                <span class="field__error" id="err-technical"></span>
+              </div>
+              <div class="field">
+                <label for="aptitude">Aptitude Score</label>
+                <input type="number" id="aptitude" name="aptitude" min="0" max="100" placeholder="e.g. 70" required>
+                <span class="field__hint">0 &ndash; 100</span>
+                <span class="field__error" id="err-aptitude"></span>
+              </div>
+              <div class="field">
+                <label for="communication">Communication Score</label>
+                <input type="number" id="communication" name="communication" min="0" max="100" placeholder="e.g. 68" required>
+                <span class="field__hint">0 &ndash; 100</span>
+                <span class="field__error" id="err-communication"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <span class="field-group__label">03 &nbsp;Experience</span>
+            <div class="field-row field-row--single">
+              <div class="field">
+                <label for="internship">Internship Experience</label>
+                <select id="internship" name="internship" required>
+                  <option value="" disabled selected>Select an option</option>
+                  <option value="1">Yes</option>
+                  <option value="0">No</option>
+                </select>
+                <span class="field__error" id="err-internship"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="form-banner" class="form-banner" hidden></div>
+
+          <div class="form-actions">
+            <button type="submit" id="predict-btn" class="btn btn--primary">
+              <span class="btn__label">Predict Placement</span>
+              <span class="btn__spinner" hidden></span>
+            </button>
+            <button type="reset" id="reset-btn" class="btn btn--ghost">Reset</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Result: the "decision" panel ===== -->
+      <section class="result-card" id="result-card" aria-live="polite">
+        <div class="result-card__empty" id="result-empty">
+          <div class="result-card__empty-mark">?</div>
+          <p>Submit the record to generate a placement prediction.</p>
+        </div>
+
+        <div class="result-card__content" id="result-content" hidden>
+          <p class="result-card__eyebrow">Placement Prediction</p>
+
+          <div class="verdict" id="verdict">
+            <span class="verdict__stamp" id="verdict-stamp">PLACED</span>
+          </div>
+
+          <div class="probability">
+            <div class="probability__row">
+              <span>Confidence</span>
+              <span id="probability-value">0%</span>
+            </div>
+            <div class="probability__track">
+              <div class="probability__fill" id="probability-fill"></div>
+            </div>
+          </div>
+
+          <dl class="result-summary" id="result-summary"></dl>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Built with HTML, CSS, JavaScript &middot; Flask &middot; Scikit-learn Logistic Regression</p>
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>
